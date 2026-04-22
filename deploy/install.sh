@@ -54,7 +54,7 @@ fi
 # 6. Frontend build
 echo "[6/7] Frontend bauen..."
 cd "$APP_DIR/frontend"
-npm install --quiet
+npm install --legacy-peer-deps --quiet
 npm run build --quiet
 
 # Copy dist to webroot
