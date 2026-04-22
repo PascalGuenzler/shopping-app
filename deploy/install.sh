@@ -13,24 +13,18 @@ echo "========================================="
 echo ""
 
 # 1. System packages
-echo "[1/6] Pakete installieren..."
+echo "[1/5] Pakete installieren..."
 apt-get update -qq
 apt-get install -y git curl
 
 # 2. Node.js 20
-echo "[2/6] Node.js 20 installieren..."
+echo "[2/5] Node.js 20 installieren..."
 curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 apt-get install -y nodejs
 echo "  Node: $(node --version) | npm: $(npm --version)"
 
-# 3. PM2 - install and verify
-echo "[3/6] PM2 installieren..."
-npm install -g pm2
-PM2_BIN=$(which pm2 || echo "/usr/local/bin/pm2")
-echo "  PM2: $($PM2_BIN --version)"
-
-# 4. Clone / update repo
-echo "[4/6] Code herunterladen..."
+# 3. Clone / update repo
+echo "[3/5] Code herunterladen..."
 if [ -d "$APP_DIR/.git" ]; then
     cd "$APP_DIR" && git pull
 else
@@ -38,8 +32,8 @@ else
     git clone "$REPO" "$APP_DIR"
 fi
 
-# 5. Backend setup
-echo "[5/6] Backend einrichten..."
+# 4. Backend setup
+echo "[4/5] Backend einrichten..."
 cd "$APP_DIR/backend"
 npm install --production
 
@@ -48,22 +42,37 @@ if [ ! -f "$APP_DIR/backend/.env" ]; then
     echo "  .env erstellt"
 fi
 
-# 6. Frontend build
-echo "[6/6] Frontend bauen..."
+# 5. Frontend build
+echo "[5/5] Frontend bauen..."
 cd "$APP_DIR/frontend"
 npm install --legacy-peer-deps
 npm run build
 
-# 7. Start with PM2
-echo "App starten..."
-$PM2_BIN stop shopping-app 2>/dev/null || true
-$PM2_BIN delete shopping-app 2>/dev/null || true
-cd "$APP_DIR/backend"
-$PM2_BIN start server.js --name shopping-app
-$PM2_BIN save
+# 6. Create systemd service
+echo "Systemd Service erstellen..."
+cat > /etc/systemd/system/shopping-app.service << EOF
+[Unit]
+Description=Shopping App
+After=network.target
 
-# Auto-start on reboot
-$PM2_BIN startup systemd -u root --hp /root 2>/dev/null | grep "sudo\|systemctl" | bash || true
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/shopping-app/backend
+ExecStart=$(which node) /opt/shopping-app/backend/server.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable shopping-app
+systemctl restart shopping-app
+sleep 2
+systemctl status shopping-app --no-pager
 
 echo ""
 echo "========================================="
@@ -72,5 +81,4 @@ echo "========================================="
 echo ""
 echo "  App erreichbar unter: http://85.215.215.250:8080"
 echo ""
-$PM2_BIN status
 
