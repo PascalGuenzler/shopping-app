@@ -1,6 +1,5 @@
 #!/bin/bash
 # Shopping App - One-Command Server Setup
-# Usage: curl -fsSL https://raw.githubusercontent.com/PascalGuenzler/shopping-app/main/deploy/install.sh | bash
 
 set -e
 
@@ -14,24 +13,24 @@ echo "========================================="
 echo ""
 
 # 1. System packages
-echo "[1/5] Pakete installieren..."
+echo "[1/6] Pakete installieren..."
 apt-get update -qq
 apt-get install -y git curl
 
 # 2. Node.js 20
-echo "[2/5] Node.js 20 installieren..."
-if ! command -v node &>/dev/null; then
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-    apt-get install -y nodejs
-fi
+echo "[2/6] Node.js 20 installieren..."
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt-get install -y nodejs
 echo "  Node: $(node --version) | npm: $(npm --version)"
 
-# 3. PM2
-echo "[3/5] PM2 installieren..."
-npm install -g pm2 --quiet
+# 3. PM2 - install and verify
+echo "[3/6] PM2 installieren..."
+npm install -g pm2
+PM2_BIN=$(which pm2 || echo "/usr/local/bin/pm2")
+echo "  PM2: $($PM2_BIN --version)"
 
 # 4. Clone / update repo
-echo "[4/5] Code herunterladen..."
+echo "[4/6] Code herunterladen..."
 if [ -d "$APP_DIR/.git" ]; then
     cd "$APP_DIR" && git pull
 else
@@ -39,10 +38,10 @@ else
     git clone "$REPO" "$APP_DIR"
 fi
 
-# 5. Backend dependencies + env
-echo "[5/5] Backend einrichten..."
+# 5. Backend setup
+echo "[5/6] Backend einrichten..."
 cd "$APP_DIR/backend"
-npm install --production --quiet
+npm install --production
 
 if [ ! -f "$APP_DIR/backend/.env" ]; then
     cp "$APP_DIR/backend/.env.production" "$APP_DIR/backend/.env"
@@ -52,17 +51,19 @@ fi
 # 6. Frontend build
 echo "[6/6] Frontend bauen..."
 cd "$APP_DIR/frontend"
-npm install --legacy-peer-deps --quiet
-npm run build --quiet
+npm install --legacy-peer-deps
+npm run build
 
-# 7. PM2 starten
-echo "[7/7] App starten..."
-pm2 stop shopping-app 2>/dev/null || true
-pm2 delete shopping-app 2>/dev/null || true
+# 7. Start with PM2
+echo "App starten..."
+$PM2_BIN stop shopping-app 2>/dev/null || true
+$PM2_BIN delete shopping-app 2>/dev/null || true
 cd "$APP_DIR/backend"
-pm2 start server.js --name shopping-app
-pm2 save
-env PATH=$PATH:/usr/bin pm2 startup systemd -u root --hp /root | tail -1 | bash || true
+$PM2_BIN start server.js --name shopping-app
+$PM2_BIN save
+
+# Auto-start on reboot
+$PM2_BIN startup systemd -u root --hp /root 2>/dev/null | grep "sudo\|systemctl" | bash || true
 
 echo ""
 echo "========================================="
@@ -71,5 +72,5 @@ echo "========================================="
 echo ""
 echo "  App erreichbar unter: http://85.215.215.250:8080"
 echo ""
-pm2 status
+$PM2_BIN status
 
