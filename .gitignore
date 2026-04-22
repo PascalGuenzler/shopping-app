@@ -1,0 +1,9 @@
+node_modules/
+*.db
+*.log
+.env
+.backend.pid
+.frontend.pid
+dist/
+deploy/upload/
+deploy/shopping-app.zip
