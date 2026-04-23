@@ -40,7 +40,7 @@ if (IS_PROD) {
   const frontendDist = path.join(__dirname, '../frontend/dist');
   app.use(express.static(frontendDist));
   // All non-API routes → React app
-  app.get('*', (req, res) => {
+  app.get('/{*splat}', (req, res) => {
     res.sendFile(path.join(frontendDist, 'index.html'));
   });
 }
