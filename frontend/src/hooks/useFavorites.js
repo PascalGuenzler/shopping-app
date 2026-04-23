@@ -4,8 +4,11 @@ import { api } from '../api';
 export function useFavorites() {
   const [favorites, setFavorites] = useState([]);
 
-  const load = useCallback(() => {
-    api.getFavorites().then(setFavorites).catch(() => {});
+  const load = useCallback(async () => {
+    try {
+      const data = await api.getFavorites();
+      setFavorites(data);
+    } catch {}
   }, []);
 
   useEffect(() => { load(); }, [load]);
