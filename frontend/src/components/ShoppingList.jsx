@@ -7,6 +7,7 @@ import { useFavorites } from '../hooks/useFavorites';
 export default function ShoppingList({ username, onLogout }) {
   const { items, loading, error, reload, addItem, claimItem, doneItem, deleteItem } = useItems();
   const { favorites, addFavorite, deleteFavorite, reloadFavorites } = useFavorites();
+  const [showModal, setShowModal] = useState(false);
 
   // Categorize items
   const myItems = items.filter(
