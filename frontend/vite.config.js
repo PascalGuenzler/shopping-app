@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico'],
       manifest: {
-        name: 'Einkaufsliste',
-        short_name: 'Einkauf',
+        name: 'Delivery',
+        short_name: 'Delivery',
         description: 'Geteilte Einkaufsliste',
         theme_color: '#16a34a',
         background_color: '#ffffff',
