@@ -1,17 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState([]);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     api.getFavorites().then(setFavorites).catch(() => {});
   }, []);
 
+  useEffect(() => { load(); }, [load]);
+
   const addFavorite = async (text) => {
-    const fav = await api.addFavorite(text);
-    setFavorites((prev) => [...prev, fav].sort((a, b) => a.text.localeCompare(b.text)));
-    return fav;
+    try {
+      const fav = await api.addFavorite(text);
+      setFavorites((prev) => {
+        if (prev.find(f => f.text === text)) return prev;
+        return [...prev, fav].sort((a, b) => a.text.localeCompare(b.text));
+      });
+      return fav;
+    } catch {
+      // already exists or other error – reload from server
+      load();
+    }
   };
 
   const deleteFavorite = async (id) => {
@@ -19,5 +29,5 @@ export function useFavorites() {
     setFavorites((prev) => prev.filter((f) => f.id !== id));
   };
 
-  return { favorites, addFavorite, deleteFavorite };
+  return { favorites, addFavorite, deleteFavorite, reloadFavorites: load };
 }
