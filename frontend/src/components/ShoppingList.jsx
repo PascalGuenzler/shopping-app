@@ -25,12 +25,10 @@ export default function ShoppingList({ username, onLogout }) {
   const doneItems = items.filter((i) => i.status === 'done');
 
   const handleAdd = async (text, quantity, saveFavorite) => {
+    await addItem(text, quantity, saveFavorite);
     if (saveFavorite) {
-      await addItem(text, quantity, true);
-      // also add to local favorites list
+      // Reload favorites from server to reflect the newly saved one
       try { await addFavorite(text); } catch {}
-    } else {
-      await addItem(text, quantity, false);
     }
   };
 
