@@ -6,8 +6,7 @@ import { useFavorites } from '../hooks/useFavorites';
 
 export default function ShoppingList({ username, onLogout }) {
   const { items, loading, error, reload, addItem, claimItem, doneItem, deleteItem } = useItems();
-  const { favorites, addFavorite, deleteFavorite } = useFavorites();
-  const [showModal, setShowModal] = useState(false);
+  const { favorites, addFavorite, deleteFavorite, reloadFavorites } = useFavorites();
 
   // Categorize items
   const myItems = items.filter(
@@ -27,8 +26,8 @@ export default function ShoppingList({ username, onLogout }) {
   const handleAdd = async (text, quantity, saveFavorite) => {
     await addItem(text, quantity, saveFavorite);
     if (saveFavorite) {
-      // Reload favorites from server to reflect the newly saved one
-      try { await addFavorite(text); } catch {}
+      // Force reload from server so the new favorite appears immediately
+      await reloadFavorites();
     }
   };
 
