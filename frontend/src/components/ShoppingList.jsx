@@ -3,10 +3,12 @@ import ItemCard from './ItemCard';
 import AddItemModal from './AddItemModal';
 import { useItems } from '../hooks/useItems';
 import { useFavorites } from '../hooks/useFavorites';
+import { usePush } from '../hooks/usePush';
 
 export default function ShoppingList({ username, onLogout }) {
   const { items, loading, error, reload, addItem, claimItem, doneItem, deleteItem } = useItems();
   const { favorites, addFavorite, deleteFavorite, reloadFavorites } = useFavorites();
+  const { pushState, toggle: togglePush } = usePush();
   const [showModal, setShowModal] = useState(false);
 
   // Categorize items
@@ -51,6 +53,33 @@ export default function ShoppingList({ username, onLogout }) {
           <h1 className="font-bold text-lg">Einkaufsliste</h1>
         </div>
         <div className="flex items-center gap-3">
+          {/* Push notification toggle */}
+          {pushState !== 'unsupported' && (
+            <button
+              onClick={togglePush}
+              title={
+                pushState === 'denied' ? 'Benachrichtigungen blockiert'
+                : pushState === 'enabled' ? 'Benachrichtigungen deaktivieren'
+                : 'Benachrichtigungen aktivieren'
+              }
+              className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+                pushState === 'enabled'
+                  ? 'bg-white/20 text-white'
+                  : 'text-green-200 hover:text-white'
+              } ${pushState === 'denied' ? 'opacity-40 cursor-not-allowed' : ''}`}
+              disabled={pushState === 'denied'}
+            >
+              {/* Bell icon */}
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              {/* Active indicator dot */}
+              {pushState === 'enabled' && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-green-300 rounded-full" />
+              )}
+            </button>
+          )}
           <button onClick={reload} className="text-green-100 hover:text-white text-sm">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
