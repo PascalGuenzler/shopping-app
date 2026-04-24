@@ -8,6 +8,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico'],
       manifest: {
@@ -25,6 +28,9 @@ export default defineConfig({
         ],
       },
       workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+      },
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
       },
     }),
