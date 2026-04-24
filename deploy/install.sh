@@ -73,9 +73,13 @@ systemctl restart shopping-app
 sleep 2
 systemctl status shopping-app --no-pager
 
+VERSION=$(git -C "$APP_DIR" rev-parse --short HEAD)
+BUILD_DATE=$(date '+%d.%m.%Y %H:%M')
+
 echo ""
 echo "========================================="
 echo "  Installation abgeschlossen!"
+echo "  Version: $VERSION ($BUILD_DATE)"
 echo "========================================="
 echo ""
 echo "  App erreichbar unter: http://85.215.215.250:8080"
