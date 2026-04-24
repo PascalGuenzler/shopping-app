@@ -37,10 +37,9 @@ echo "[4/5] Backend einrichten..."
 cd "$APP_DIR/backend"
 npm install --production
 
-if [ ! -f "$APP_DIR/backend/.env" ]; then
-    cp "$APP_DIR/backend/.env.production" "$APP_DIR/backend/.env"
-    echo "  .env erstellt"
-fi
+# Always sync .env from .env.production (ensures new keys like VAPID are picked up)
+cp "$APP_DIR/backend/.env.production" "$APP_DIR/backend/.env"
+echo "  .env aktualisiert"
 
 # 5. Frontend build
 echo "[5/5] Frontend bauen..."
