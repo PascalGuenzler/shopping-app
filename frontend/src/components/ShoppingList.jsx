@@ -50,7 +50,7 @@ export default function ShoppingList({ username, onLogout }) {
       <header className="bg-green-600 text-white px-4 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-2">
           <span className="text-xl">🛒</span>
-          <h1 className="font-bold text-lg">Einkaufsliste</h1>
+          <h1 className="font-bold text-lg">Einkaufsliste <span className="text-green-200 font-normal text-xs">({__APP_VERSION__})</span></h1>
         </div>
         <div className="flex items-center gap-3">
           {/* Push notification toggle */}
